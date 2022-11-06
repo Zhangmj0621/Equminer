@@ -35,7 +35,7 @@ QStringList MyConfig::readnamelist(){
 
 void MyConfig::getinputbase()
 {
-    fstream io_file(dirPath.toStdString()+"/stdin_format.txt");
+    fstream io_file(dirPath.toStdString()+"/stdin_format.txt",ios::in | ios::out);
     if(!io_file)
     {
         qDebug()<<"文件打开失败";
