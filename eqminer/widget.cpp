@@ -124,6 +124,12 @@ Widget::Widget(QWidget *parent)
                     system(temp.c_str());
                 }
                 //两两比较判断是否相等
+                for(int i=0;i<maxnum;i++)
+                    for(int j=i+1;j<maxnum;j++)
+                    {
+                        string tempnamelist=config.readnamelist().at(i).toStdString().substr(0,config.readnamelist().at(i).toStdString().size()-3);
+
+                    }
             }
 
 
