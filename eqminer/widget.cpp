@@ -35,6 +35,7 @@ Widget::Widget(QWidget *parent)
         }
         else
         {
+            QMessageBox::information(this,"true","判断成功，在文件中查看结果！");
             MyDir* mydir=new MyDir(dir_path);
             QDir up_dir=init_dir;
             up_dir.cdUp();
