@@ -11,7 +11,8 @@ int main(int argc, char *argv[])
     QDir temp_dir;
     temp_dir.setPath(a.applicationDirPath());
     qDebug()<<temp_dir.absoluteFilePath("input/4A");
-    Widget w;
-    w.show();
+
+    //textEdit->show();
+    Widget::getwidget()->show();
     return a.exec();
 }

@@ -11,7 +11,17 @@
 #include<stdlib.h>
 #include"filecontent.h"
 #include"mydir.h"
+#include<QListWidgetItem>
+#include"equalfile.h"
+#include"confirmerwidget.h"
+#include<QTimer>
 using namespace std;
+
+QString strout;
+
+Equalfile equalfile[100];
+
+int equalnum=0;
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -19,12 +29,21 @@ Widget::Widget(QWidget *parent)
 {
     ui->setupUi(this);
 
+    qInstallMessageHandler(logOutput);
+
     QFont qfont("Microsoft Yahei",14);
     ui->label->setFont(qfont);
 
     ui->label_2->setFont(qfont);
 
     ui->lineEdit->setFont(qfont);
+
+    textEdit=new QTextEdit();
+
+    textEdit->setParent(this);
+
+
+    textEdit->setGeometry(360,30,301,331);
 
     connect(ui->pushButton,&QPushButton::clicked,[=](){
         QString dir_path=ui->lineEdit->text();
@@ -35,17 +54,23 @@ Widget::Widget(QWidget *parent)
         }
         else
         {
-            QMessageBox::information(this,"true","判断成功，在文件中查看结果！");
+            QString cz1="已成功打开文件夹"+dir_path;
+            //QListWidgetItem* item1=new QListWidgetItem(cz1);
+            //ui->listWidget->addItem(item1);
+            qDebug()<<cz1;
+
+            //QMessageBox::information(this,"true","判断成功，在文件中查看结果！");
             MyDir* mydir=new MyDir(dir_path);
             QDir up_dir=init_dir;
             up_dir.cdUp();
             QString up_dir_path=up_dir.absolutePath();
-            qDebug()<<up_dir_path;
+            //qDebug()<<up_dir_path;
             string equalpath=up_dir_path.toStdString()+"/output/equal.csv";
-            qDebug()<<QString::fromStdString(equalpath);
+            //qDebug()<<QString::fromStdString(equalpath);
             fstream equal_file(equalpath,ios::in | ios::out);
             string inequalpath=up_dir_path.toStdString()+"/output/inequal.csv";
             fstream inequal_file(inequalpath,ios::in | ios::out);
+
             //对每个小dir进行操作
             for(int p=0;p<mydir->getdir_count();p++)
             {
@@ -57,7 +82,7 @@ Widget::Widget(QWidget *parent)
                 for(int i=0;i<config.readnamelist().size();i++)
                 {
                     QString str=config.readnamelist().at(i);
-                    qDebug()<<str;
+                    //qDebug()<<str;
                 }
                 int maxnum=config.readnamelist().size();
                 bool judge[20][20]; //用来暂存是否判断等价
@@ -70,7 +95,7 @@ Widget::Widget(QWidget *parent)
                     tempnamelist+="o";
                     string temp="g++ -o "+dir_path.toStdString()+"/"+tempnamelist
                             +" "+dir_path.toStdString()+"/"+config.readnamelist().at(i).toStdString();
-                    qDebug()<<QString::fromStdString(temp);
+                    //qDebug()<<QString::fromStdString(temp);
                     system(temp.c_str());
                 }
                 //获得输入input.txt，进行十次判断
@@ -100,14 +125,14 @@ Widget::Widget(QWidget *parent)
                             {
                                 b=b*10+base.toStdString()[i]-'0';
                             }
-                            qDebug()<<"int("<<a<<","<<b<<")";
+                            //qDebug()<<"int("<<a<<","<<b<<")";
                             int an=randomio.getrandomint(a,b);
                             io_file<<an;
                         }
                         else if(base[0]=='c')
                         {
                             char an=randomio.getrandomchar();
-                            qDebug()<<an;
+                            //qDebug()<<an;
                             io_file<<an;
                         }
                         else
@@ -128,7 +153,7 @@ Widget::Widget(QWidget *parent)
                                 b=b*10+base.toStdString()[i]-'0';
                             }
                             string an=randomio.getrandomstring(a,b);
-                            qDebug()<<QString::fromStdString(an);
+                            //qDebug()<<QString::fromStdString(an);
                             io_file<<an;
                         }
                         if(i!=config.readinputBase().size()-1) io_file<<" ";
@@ -142,7 +167,7 @@ Widget::Widget(QWidget *parent)
                         tempnamelist+="o";
                         tempnamelist2+="txt";
                         string temp=dir_path.toStdString()+"/"+tempnamelist+" <"+inputpath+" >"+dir_path.toStdString()+"/"+tempnamelist2;
-                        qDebug()<<QString::fromStdString(temp);
+                        //qDebug()<<QString::fromStdString(temp);
                         system(temp.c_str());
                     }
                     //两两比较判断是否相等
@@ -153,8 +178,8 @@ Widget::Widget(QWidget *parent)
                         tempnamelist+="txt";
                         Filecontent* temp=new Filecontent(dir_path.toStdString()+"/"+tempnamelist);
                         filecontent[i]=temp;
-                        qDebug()<<filecontent[i]->getstringnumber();
-                        qDebug()<<QString::fromStdString(tempnamelist)<<": " <<QString::fromStdString(filecontent[i]->getcontent().at(0));
+                        //qDebug()<<filecontent[i]->getstringnumber();
+                        //qDebug()<<QString::fromStdString(tempnamelist)<<": " <<QString::fromStdString(filecontent[i]->getcontent().at(0));
                     }
                     for(int i=0;i<maxnum;i++)
                     {
@@ -181,6 +206,9 @@ Widget::Widget(QWidget *parent)
                         {
                             equal_file<<config.readnamelist().at(i).toStdString()<<","<<config.readnamelist().at(j).toStdString()
                                      <<endl;
+                            equalfile[equalnum].file1=dir_path+"/"+config.readnamelist().at(i);
+                            equalfile[equalnum].file2=dir_path+"/"+config.readnamelist().at(j);
+                            equalnum++;
                         }
                         else
                         {
@@ -191,6 +219,12 @@ Widget::Widget(QWidget *parent)
             }
             equal_file.close();
             inequal_file.close();
+            qDebug()<<"结果已生成，可至csv文件中查看!";
+            qDebug()<<"";
+            QTimer::singleShot(1000,this,[=](){
+                ConfirmerWidget* confirmerwidget1=new ConfirmerWidget();
+                confirmerwidget1->show();
+            });
 
         }
     });
@@ -199,5 +233,22 @@ Widget::Widget(QWidget *parent)
 Widget::~Widget()
 {
     delete ui;
+}
+
+Widget* Widget::getwidget(){
+    static Widget windows;
+    return &windows;
+}
+
+void Widget::logOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QString text;
+    //text.append(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " ");
+
+
+    text.append(msg);
+    //strout=text;
+    //textEdit->append(text);
+    getwidget()->textEdit->append(text);
 }
 

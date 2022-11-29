@@ -15,7 +15,7 @@ void MyConfig::getnamelist()
 {
     QDir dir;
     dir.setPath(dirPath);
-    qDebug()<<dir.absolutePath();
+    qDebug()<<"打开"<<dir.absolutePath();
     //dir.setPath(a.applicationDirPath());
     if (dir.exists())   //判断目录是否存在
     {
@@ -53,7 +53,7 @@ void MyConfig::getinputbase()
     }
     for(int j=0;j<i;j++)
     {
-        qDebug()<<QString::fromStdString(temp[j]);
+        //qDebug()<<QString::fromStdString(temp[j]);
         this->inputBase.push_back(QString::fromStdString(temp[j]));
     }
     io_file.close();

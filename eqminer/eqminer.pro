@@ -15,9 +15,13 @@ INCLUDEPATH += .
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-HEADERS += filecontent.h myconfig.h mydir.h randomio.h ui_widget.h widget.h
-FORMS += widget.ui
+HEADERS += filecontent.h myconfig.h mydir.h randomio.h ui_widget.h widget.h \
+    confirmerwidget.h \
+    equalfile.h
+FORMS += widget.ui \
+    confirmerwidget.ui
 SOURCES += filecontent.cpp \
+           confirmerwidget.cpp \
            main.cpp \
            myconfig.cpp \
            mydir.cpp \

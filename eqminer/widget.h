@@ -2,10 +2,13 @@
 #define WIDGET_H
 
 #include <QWidget>
+#include<QTextEdit>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }
 QT_END_NAMESPACE
+
+
 
 class Widget : public QWidget
 {
@@ -13,6 +16,15 @@ class Widget : public QWidget
 
 public:
     Widget(QWidget *parent = nullptr);
+
+    QTextEdit* textEdit;
+
+
+    //static QTextEdit* textEdit;
+
+    static Widget* getwidget();
+    static void logOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+
     ~Widget();
 
 private:
