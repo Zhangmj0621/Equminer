@@ -15,13 +15,25 @@
 #include"equalfile.h"
 #include"confirmerwidget.h"
 #include<QTimer>
+#include<QFile>
+#include<QFileDialog>
+#include<QUrl>
 using namespace std;
 
 QString strout;
 
-Equalfile equalfile[100];
+Equalfile equalfile[200];
 
 int equalnum=0;
+
+bool ifequal[200];
+
+Equalfile inequalfile[200];
+
+int inequalnum=0;
+
+string equalpath;
+string inequalpath;
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -45,6 +57,13 @@ Widget::Widget(QWidget *parent)
 
     textEdit->setGeometry(360,30,301,331);
 
+
+    connect(ui->pushButton_2,&QPushButton::clicked,[=](){
+        QString string=QFileDialog::getExistingDirectory(this,"open","/home/oslab");
+
+        ui->lineEdit->setText(string);
+    });
+
     connect(ui->pushButton,&QPushButton::clicked,[=](){
         QString dir_path=ui->lineEdit->text();
         init_dir.setPath(dir_path);
@@ -65,10 +84,10 @@ Widget::Widget(QWidget *parent)
             up_dir.cdUp();
             QString up_dir_path=up_dir.absolutePath();
             //qDebug()<<up_dir_path;
-            string equalpath=up_dir_path.toStdString()+"/output/equal.csv";
+            equalpath=up_dir_path.toStdString()+"/output/equal.csv";
             //qDebug()<<QString::fromStdString(equalpath);
             fstream equal_file(equalpath,ios::in | ios::out);
-            string inequalpath=up_dir_path.toStdString()+"/output/inequal.csv";
+            inequalpath=up_dir_path.toStdString()+"/output/inequal.csv";
             fstream inequal_file(inequalpath,ios::in | ios::out);
 
             //对每个小dir进行操作
@@ -206,17 +225,25 @@ Widget::Widget(QWidget *parent)
                         {
                             equal_file<<config.readnamelist().at(i).toStdString()<<","<<config.readnamelist().at(j).toStdString()
                                      <<endl;
-                            equalfile[equalnum].file1=dir_path+"/"+config.readnamelist().at(i);
-                            equalfile[equalnum].file2=dir_path+"/"+config.readnamelist().at(j);
+                            equalfile[equalnum].file_ab1=dir_path+"/"+config.readnamelist().at(i);
+                            equalfile[equalnum].file_ab2=dir_path+"/"+config.readnamelist().at(j);
+                            equalfile[equalnum].file1=config.readnamelist().at(i);
+                            equalfile[equalnum].file2=config.readnamelist().at(j);
                             equalnum++;
                         }
                         else
                         {
                             inequal_file<<config.readnamelist().at(i).toStdString()<<","<<config.readnamelist().at(j).toStdString()
                                      <<endl;
+                            inequalfile[inequalnum].file_ab1=dir_path+"/"+config.readnamelist().at(i);
+                            inequalfile[inequalnum].file_ab2=dir_path+"/"+config.readnamelist().at(j);
+                            inequalfile[inequalnum].file1=config.readnamelist().at(i);
+                            inequalfile[inequalnum].file2=config.readnamelist().at(j);
+                            inequalnum++;
                         }
                     }
             }
+            for(int i=0;i<equalnum;i++) ifequal[i]=true;
             equal_file.close();
             inequal_file.close();
             qDebug()<<"结果已生成，可至csv文件中查看!";
